@@ -182,8 +182,13 @@ CONTAINER_IFNAME=${CONTAINER_IFNAME:-eth1}
 
 # Second step: find the guest (for now, we only support LXC containers)
 while read _ mnt fstype options _; do
-  [ "$fstype" != "cgroup" ] && continue
-  echo "$options" | grep -qw devices || continue
+  if [ "$fstype" = "cgroup" ]; then
+    echo "$options" | grep -qw devices || continue
+  elif [ "$fstype" = "cgroup2" ]; then
+    true # do nothing
+  else
+    continue
+  fi
   CGROUPMNT=$mnt
 done < /proc/mounts
 
